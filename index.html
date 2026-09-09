@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meus Gastos</title>
+</head>
+
+<body>
+
+  <main class="app">
+
+    <header class="header">
+      <h1>💰 Meus Gastos</h1>
+      <p>Controle suas despesas de setembro</p>
+    </header>
+
+    <section class="summary">
+      <div class="card">
+        <span>Total gasto</span>
+        <strong id="total-gasto">R$ 0,00</strong>
+      </div>
+      <div class="card">
+        <span>Limite mensal</span>
+        <strong>R$ 3.000,00</strong>
+      </div>
+    </section>
+
+    <button class="add-expense" id="btn-adicionar">
+      + Adicionar gasto
+    </button>
+
+    <section class="form-section hidden" id="form-section">
+      <h2>Novo gasto</h2>
+      <div class="form-group">
+        <label for="descricao">Descrição</label>
+        <input type="text" id="descricao" placeholder="Ex: Mercado" />
+      </div>
+      <div class="form-group">
+        <label for="valor">Valor</label>
+        <input type="number" id="valor" placeholder="Ex: 250" />
+      </div>
+      <div class="form-group">
+        <label for="categoria">Categoria</label>
+        <select id="categoria">
+          <option value="Alimentação">Alimentação</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Moradia">Moradia</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Educação">Educação</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="data">Data</label>
+        <input type="date" id="data" />
+      </div>
+      <div class="form-group">
+        <label for="tipo">Tipo</label>
+        <select id="tipo">
+          <option value="Fixa">Fixa</option>
+          <option value="Variável">Variável</option>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button id="btn-cancelar">Cancelar</button>
+        <button id="btn-salvar">Salvar gasto</button>
+      </div>
+    </section>
+
+    <section class="filter-section">
+  <select id="filtro-categoria">
+    <option value="Todos">Todas as categorias</option>
+    <option value="Alimentação">Alimentação</option>
+    <option value="Transporte">Transporte</option>
+    <option value="Moradia">Moradia</option>
+    <option value="Lazer">Lazer</option>
+    <option value="Saúde">Saúde</option>
+    <option value="Educação">Educação</option>
+    <option value="Outros">Outros</option>
+  </select>
+</section>
+
+    <section class="expenses">
+      <h2>Seus gastos</h2>
+      <div class="empty-state" id="empty-state">
+        <p>Nenhum gasto cadastrado.</p>
+      </div>
+      <ul class="expense-list" id="expense-list"></ul>
+    </section>
+
+  </main>
+
+  <script type="module" src="/src/main.ts"></script>
+
+</body>
+
+</html>

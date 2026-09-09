@@ -3,6 +3,8 @@ import type { Expense } from './types/expense';
 import type { ExpenseCategory, ExpenseType } from './types/expense';
 import { formatCurrency } from './utils/formatCurrency';
 import { saveExpenses, loadExpenses } from './services/storage';
+import { formatDate } from './utils/formatDate';
+
 
 let expenses: Expense[] = loadExpenses();
 let editingId: string | null = null;
@@ -44,7 +46,7 @@ function renderExpenses() {
     <li class="expense-item" data-id="${expense.id}">
       <div class="expense-info">
         <strong>${expense.description}</strong>
-        <span>${expense.category} • ${expense.type} • ${expense.date}</span>
+        <span>${expense.category} • ${expense.type} • ${formatDate(expense.date)}</span>
       </div>
       <div class="expense-actions">
         <span class="expense-value">${formatCurrency(expense.value)}</span>

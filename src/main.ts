@@ -127,6 +127,13 @@ btnSalvar.addEventListener('click', () => {
     expenses.push(newExpense);
   }
 
+  // Limpar formulário
+  inputDescricao.value = '';
+  inputValor.value = '';
+  inputCategoria.value = 'Alimentação';
+  inputData.value = '';
+  inputTipo.value = 'Fixa';
+
   renderExpenses();
   formSection.classList.add('hidden');
 });

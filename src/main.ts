@@ -103,6 +103,19 @@ btnCancelar.addEventListener('click', () => {
 
 // Salvar gasto
 btnSalvar.addEventListener('click', () => {
+  if (!inputDescricao.value.trim()) {
+    alert('Preencha a descrição!');
+    return;
+  }
+  if (!inputValor.value || Number(inputValor.value) <= 0) {
+    alert('Preencha um valor válido!');
+    return;
+  }
+  if (!inputData.value) {
+    alert('Preencha a data!');
+    return;
+  }
+
   if (editingId) {
     expenses = expenses.map((exp) =>
       exp.id === editingId

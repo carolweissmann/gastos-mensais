@@ -50,6 +50,7 @@ body {
 
 .card strong {
     font-size: 24px;
+    white-space: nowrap;
 }
 
 .add-expense {
@@ -283,4 +284,85 @@ body {
   background: #222;
   border-radius: 4px;
   margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .app {
+    width: 95%;
+    margin: 20px auto;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .categories-summary {
+  padding: 16px;
+}
+
+  .card {
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .card strong {
+    font-size: 15px;
+  }
+
+  .card span {
+  font-size: 12px;
+}
+
+  .expense-item {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .expense-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .expense-info strong {
+    font-size: 14px;
+  }
+
+  .expense-info span {
+    font-size: 12px;
+  }
+
+  .expense-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .expense-value {
+    font-size: 14px;
+  }
+
+  .btn-editar,
+  .btn-excluir {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .form-buttons button {
+    width: 100%;
+  }
 }

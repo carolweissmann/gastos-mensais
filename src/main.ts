@@ -89,7 +89,8 @@ function renderExpenses() {
     <li class="expense-item" data-id="${expense.id}">
       <div class="expense-info">
         <strong>${expense.description}</strong>
-        <span>${expense.category} • ${expense.type} • ${formatDate(expense.date)}</span>
+        <span>${expense.category} • ${expense.type}</span>
+<span>${formatDate(expense.date)}</span>
       </div>
       <div class="expense-actions">
         <span class="expense-value">${formatCurrency(expense.value)}</span>

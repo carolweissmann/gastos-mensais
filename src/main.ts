@@ -197,4 +197,26 @@ filtroCategoria.addEventListener('change', () => {
   renderExpenses();
 });
 
+// Lógica das abas
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabs.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    const target = (tab as HTMLElement).dataset.tab;
+
+    tabs.forEach((t) => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    tabContents.forEach((content) => {
+      const el = content as HTMLElement;
+      if (el.id === `tab-${target}`) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+  });
+});
+
 renderExpenses();

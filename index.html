@@ -35,28 +35,66 @@
       </div>
     </section>
 
-    <section class="categories-summary" id="categories-summary">
-      <h2>Por categoria</h2>
-      <ul id="categories-list"></ul>
-    </section>
+    <div class="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="transacoes">Transações</button>
+      <button class="tab" data-tab="categorias">Categorias</button>
+    </div>
 
-    <button class="add-expense" id="btn-adicionar">
-      + Adicionar gasto
-    </button>
+    <div class="tab-content" id="tab-overview">
+      <section class="categories-summary" id="categories-summary">
+        <h2>Por categoria</h2>
+        <ul id="categories-list"></ul>
+      </section>
+    </div>
 
-    <section class="form-section hidden" id="form-section">
-      <h2>Novo gasto</h2>
-      <div class="form-group">
-        <label for="descricao">Descrição</label>
-        <input type="text" id="descricao" placeholder="Ex: Mercado" />
-      </div>
-      <div class="form-group">
-        <label for="valor">Valor</label>
-        <input type="number" id="valor" placeholder="Ex: 250" />
-      </div>
-      <div class="form-group">
-        <label for="categoria">Categoria</label>
-        <select id="categoria">
+    <div class="tab-content hidden" id="tab-transacoes">
+      <button class="add-expense" id="btn-adicionar">
+        + Adicionar gasto
+      </button>
+
+      <section class="form-section hidden" id="form-section">
+        <h2>Novo gasto</h2>
+        <div class="form-group">
+          <label for="descricao">Descrição</label>
+          <input type="text" id="descricao" placeholder="Ex: Mercado" />
+        </div>
+        <div class="form-group">
+          <label for="valor">Valor</label>
+          <input type="number" id="valor" placeholder="Ex: 250" />
+        </div>
+        <div class="form-group">
+          <label for="categoria">Categoria</label>
+          <select id="categoria">
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Educação">Educação</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="data">Data</label>
+          <input type="date" id="data" />
+        </div>
+        <div class="form-group">
+          <label for="tipo">Tipo</label>
+          <select id="tipo">
+            <option value="Fixa">Fixa</option>
+            <option value="Variável">Variável</option>
+          </select>
+        </div>
+        <div class="form-buttons">
+          <button id="btn-cancelar">Cancelar</button>
+          <button id="btn-salvar">Salvar gasto</button>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <select id="filtro-categoria">
+          <option value="Todos">Todas as categorias</option>
           <option value="Alimentação">Alimentação</option>
           <option value="Transporte">Transporte</option>
           <option value="Moradia">Moradia</option>
@@ -65,44 +103,23 @@
           <option value="Educação">Educação</option>
           <option value="Outros">Outros</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label for="data">Data</label>
-        <input type="date" id="data" />
-      </div>
-      <div class="form-group">
-        <label for="tipo">Tipo</label>
-        <select id="tipo">
-          <option value="Fixa">Fixa</option>
-          <option value="Variável">Variável</option>
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button id="btn-cancelar">Cancelar</button>
-        <button id="btn-salvar">Salvar gasto</button>
-      </div>
-    </section>
+      </section>
 
-    <section class="filter-section">
-      <select id="filtro-categoria">
-        <option value="Todos">Todas as categorias</option>
-        <option value="Alimentação">Alimentação</option>
-        <option value="Transporte">Transporte</option>
-        <option value="Moradia">Moradia</option>
-        <option value="Lazer">Lazer</option>
-        <option value="Saúde">Saúde</option>
-        <option value="Educação">Educação</option>
-        <option value="Outros">Outros</option>
-      </select>
-    </section>
+      <section class="expenses">
+        <h2>Seus gastos</h2>
+        <div class="empty-state" id="empty-state">
+          <p>Nenhum gasto cadastrado.</p>
+        </div>
+        <ul class="expense-list" id="expense-list"></ul>
+      </section>
+    </div>
 
-    <section class="expenses">
-      <h2>Seus gastos</h2>
-      <div class="empty-state" id="empty-state">
-        <p>Nenhum gasto cadastrado.</p>
-      </div>
-      <ul class="expense-list" id="expense-list"></ul>
-    </section>
+    <div class="tab-content hidden" id="tab-categorias">
+      <section class="categories-summary">
+        <h2>Resumo por categoria</h2>
+        <ul id="categories-list-detail"></ul>
+      </section>
+    </div>
 
   </main>
 

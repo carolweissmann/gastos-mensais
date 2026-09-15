@@ -422,3 +422,36 @@ body {
 .expense-actions {
   flex-wrap: nowrap;
 }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: white;
+  padding: 6px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #888;
+  transition: all 0.2s;
+}
+
+.tab.active {
+  background: #2563eb;
+  color: white;
+}
+
+.tab:hover:not(.active) {
+  background: #f0f4ff;
+  color: #2563eb;
+}

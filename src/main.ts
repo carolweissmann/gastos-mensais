@@ -5,10 +5,11 @@ import { formatCurrency } from './utils/formatCurrency';
 import { saveExpenses, loadExpenses } from './services/storage';
 import { formatDate } from './utils/formatDate';
 
-
 let expenses: Expense[] = loadExpenses();
 let editingId: string | null = null;
 let currentFilter: string = 'Todos';
+
+const LIMITE = 3000;
 
 // Elementos do HTML
 const btnAdicionar = document.getElementById('btn-adicionar')!;
@@ -18,6 +19,9 @@ const formSection = document.getElementById('form-section')!;
 const expenseList = document.getElementById('expense-list')!;
 const emptyState = document.getElementById('empty-state')!;
 const totalGasto = document.getElementById('total-gasto')!;
+const disponivelEl = document.getElementById('disponivel')!;
+const percentualEl = document.getElementById('percentual')!;
+const categoriesList = document.getElementById('categories-list')!;
 
 const inputDescricao = document.getElementById('descricao') as HTMLInputElement;
 const inputValor = document.getElementById('valor') as HTMLInputElement;
@@ -26,7 +30,45 @@ const inputData = document.getElementById('data') as HTMLInputElement;
 const inputTipo = document.getElementById('tipo') as HTMLSelectElement;
 const filtroCategoria = document.getElementById('filtro-categoria') as HTMLSelectElement;
 
-// Renderizar gastos na tela
+function renderDashboard() {
+  const total = expenses.reduce((acc, exp) => acc + exp.value, 0);
+  const disponivel = LIMITE - total;
+  const percentual = Math.min(Math.round((total / LIMITE) * 100), 100);
+
+  disponivelEl.textContent = formatCurrency(disponivel);
+  percentualEl.textContent = `${percentual}%`;
+
+  if (percentual >= 90) {
+    percentualEl.style.color = '#dc2626';
+  } else if (percentual >= 70) {
+    percentualEl.style.color = '#f59e0b';
+  } else {
+    percentualEl.style.color = '#16a34a';
+  }
+
+  const byCategory: Record<string, number> = {};
+  expenses.forEach((exp) => {
+    byCategory[exp.category] = (byCategory[exp.category] || 0) + exp.value;
+  });
+
+  categoriesList.innerHTML = Object.entries(byCategory)
+    .sort((a, b) => b[1] - a[1])
+    .map(([category, value]) => {
+      const pct = Math.round((value / total) * 100);
+      return `
+        <li class="category-item">
+          <div style="flex: 1">
+            <div style="display: flex; justify-content: space-between">
+              <span>${category}</span>
+              <strong>${formatCurrency(value)}</strong>
+            </div>
+            <div class="category-bar" style="width: ${pct}%"></div>
+          </div>
+        </li>
+      `;
+    }).join('');
+}
+
 function renderExpenses() {
   expenseList.innerHTML = '';
 
@@ -37,6 +79,7 @@ function renderExpenses() {
   if (filtered.length === 0) {
     emptyState.classList.remove('hidden');
     saveExpenses(expenses);
+    renderDashboard();
     return;
   }
 
@@ -56,7 +99,6 @@ function renderExpenses() {
     </li>
   `).join('');
 
-  // Eventos de excluir
   document.querySelectorAll('.btn-excluir').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const id = (e.target as HTMLElement).dataset.id;
@@ -65,7 +107,6 @@ function renderExpenses() {
     });
   });
 
-  // Eventos de editar
   document.querySelectorAll('.btn-editar').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const id = (e.target as HTMLElement).dataset.id;
@@ -86,22 +127,20 @@ function renderExpenses() {
   // Salvar no localStorage
   saveExpenses(expenses);
 
-  // Atualizar total
+  // Atualizar total e dashboard
   const total = expenses.reduce((acc, expense) => acc + expense.value, 0);
   totalGasto.textContent = formatCurrency(total);
+  renderDashboard();
 }
 
-// Mostrar formulário
 btnAdicionar.addEventListener('click', () => {
   formSection.classList.remove('hidden');
 });
 
-// Esconder formulário
 btnCancelar.addEventListener('click', () => {
   formSection.classList.add('hidden');
 });
 
-// Salvar gasto
 btnSalvar.addEventListener('click', () => {
   if (!inputDescricao.value.trim()) {
     alert('Preencha a descrição!');
@@ -142,7 +181,6 @@ btnSalvar.addEventListener('click', () => {
     expenses.push(newExpense);
   }
 
-  // Limpar formulário
   inputDescricao.value = '';
   inputValor.value = '';
   inputCategoria.value = 'Alimentação';
@@ -153,11 +191,9 @@ btnSalvar.addEventListener('click', () => {
   formSection.classList.add('hidden');
 });
 
-// Filtro por categoria
 filtroCategoria.addEventListener('change', () => {
   currentFilter = filtroCategoria.value;
   renderExpenses();
 });
 
-// Iniciar o app
 renderExpenses();

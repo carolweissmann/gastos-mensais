@@ -23,8 +23,21 @@
       </div>
       <div class="card">
         <span>Limite mensal</span>
-        <strong>R$ 3.000,00</strong>
+        <strong id="limite-mensal">R$ 3.000,00</strong>
       </div>
+      <div class="card">
+        <span>Disponível</span>
+        <strong id="disponivel">R$ 3.000,00</strong>
+      </div>
+      <div class="card">
+        <span>Utilizado</span>
+        <strong id="percentual">0%</strong>
+      </div>
+    </section>
+
+    <section class="categories-summary" id="categories-summary">
+      <h2>Por categoria</h2>
+      <ul id="categories-list"></ul>
     </section>
 
     <button class="add-expense" id="btn-adicionar">
@@ -71,17 +84,17 @@
     </section>
 
     <section class="filter-section">
-  <select id="filtro-categoria">
-    <option value="Todos">Todas as categorias</option>
-    <option value="Alimentação">Alimentação</option>
-    <option value="Transporte">Transporte</option>
-    <option value="Moradia">Moradia</option>
-    <option value="Lazer">Lazer</option>
-    <option value="Saúde">Saúde</option>
-    <option value="Educação">Educação</option>
-    <option value="Outros">Outros</option>
-  </select>
-</section>
+      <select id="filtro-categoria">
+        <option value="Todos">Todas as categorias</option>
+        <option value="Alimentação">Alimentação</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Moradia">Moradia</option>
+        <option value="Lazer">Lazer</option>
+        <option value="Saúde">Saúde</option>
+        <option value="Educação">Educação</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </section>
 
     <section class="expenses">
       <h2>Seus gastos</h2>

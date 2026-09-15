@@ -4,13 +4,10 @@ import type { ExpenseCategory, ExpenseType } from './types/expense';
 import { formatCurrency } from './utils/formatCurrency';
 import { saveExpenses, loadExpenses } from './services/storage';
 import { formatDate } from './utils/formatDate';
-import { Chart, registerables } from 'chart.js';
-Chart.register(...registerables);
 
 let expenses: Expense[] = loadExpenses();
 let editingId: string | null = null;
 let currentFilter: string = 'Todos';
-let chartInstance: Chart | null = null;
 
 const LIMITE = 3000;
 
@@ -75,56 +72,85 @@ function renderDashboard() {
 }
 
 function renderChart() {
-  const canvas = document.getElementById('chart-gastos') as HTMLCanvasElement;
-  if (!canvas) return;
+  const container = document.getElementById('chart-gastos-container');
+  if (!container) return;
 
   const byMonth: Record<string, number> = {};
-
   expenses.forEach((exp) => {
     const [year, month] = exp.date.split('-');
     const key = `${month}/${year}`;
     byMonth[key] = (byMonth[key] || 0) + exp.value;
   });
 
-  const sorted = Object.entries(byMonth).sort((a, b) => {
-    const [ma, ya] = a[0].split('/');
-    const [mb, yb] = b[0].split('/');
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  // Mostra só os meses que têm dados + mês atual
+const allKeys = new Set([
+  ...Object.keys(byMonth),
+  `${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`,
+]);
+
+const months = Array.from(allKeys)
+  .sort((a, b) => {
+    const [ma, ya] = a.split('/');
+    const [mb, yb] = b.split('/');
     return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
+  })
+  .map((key) => {
+    const [m, y] = key.split('/');
+    const d = new Date(parseInt(y), parseInt(m) - 1, 1);
+    return {
+      key,
+      label: monthNames[d.getMonth()],
+      value: byMonth[key] || 0,
+      isActive: d.getMonth() === currentMonth && parseInt(y) === currentYear,
+    };
   });
 
-  const labels = sorted.map(([key]) => key);
-  const values = sorted.map(([, value]) => value);
-
-  if (chartInstance) {
-    chartInstance.destroy();
+  // Atualiza o total do mês atual no header
+  const chartTotal = document.getElementById('chart-total');
+  if (chartTotal) {
+    const currentMonthTotal = months.find(m => m.isActive)?.value || 0;
+    chartTotal.textContent = formatCurrency(currentMonthTotal);
   }
 
-  chartInstance = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Gastos',
-        data: values,
-        backgroundColor: '#2563eb',
-        borderRadius: 8,
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: (value) => `R$ ${value}`,
-          },
-        },
-      },
-    },
-  });
+  const maxValue = Math.max(...months.map(m => m.value), 1);
+  const barWidth = 40;
+  const gap = 16;
+  const chartHeight = 100;
+  const totalWidth = months.length * (barWidth + gap);
+
+  const bars = months.map(({ label, value, isActive }, i) => {
+    const h = value > 0 ? Math.max(Math.round((value / maxValue) * chartHeight), 8) : 12;
+    const x = i * (barWidth + gap);
+    const y = chartHeight - h;
+    const fill = isActive ? 'url(#blueGradient)' : 'rgba(0,0,0,0.07)';
+    const shadow = isActive ? 'filter: drop-shadow(0 4px 8px rgba(37,99,235,0.35))' : '';
+    const labelColor = isActive ? '#2563eb' : 'rgba(0,0,0,0.3)';
+    const fontWeight = isActive ? '600' : '400';
+
+    return `
+      <g>
+        <rect x="${x}" y="${y}" width="${barWidth}" height="${h}" rx="6" fill="${fill}" style="${shadow}" />
+        <text x="${x + barWidth / 2}" y="${chartHeight + 18}" text-anchor="middle" font-size="10" font-family="sans-serif" fill="${labelColor}" font-weight="${fontWeight}">${label}</text>
+      </g>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <svg width="100%" viewBox="0 0 ${totalWidth} ${chartHeight + 28}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3b82f6"/>
+          <stop offset="100%" stop-color="#2563eb"/>
+        </linearGradient>
+      </defs>
+      ${bars}
+    </svg>
+  `;
 }
 
 function renderExpenses() {

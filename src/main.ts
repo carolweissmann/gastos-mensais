@@ -4,10 +4,13 @@ import type { ExpenseCategory, ExpenseType } from './types/expense';
 import { formatCurrency } from './utils/formatCurrency';
 import { saveExpenses, loadExpenses } from './services/storage';
 import { formatDate } from './utils/formatDate';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 let expenses: Expense[] = loadExpenses();
 let editingId: string | null = null;
 let currentFilter: string = 'Todos';
+let chartInstance: Chart | null = null;
 
 const LIMITE = 3000;
 
@@ -51,10 +54,12 @@ function renderDashboard() {
     byCategory[exp.category] = (byCategory[exp.category] || 0) + exp.value;
   });
 
+  const total2 = expenses.reduce((acc, exp) => acc + exp.value, 0);
+
   categoriesList.innerHTML = Object.entries(byCategory)
     .sort((a, b) => b[1] - a[1])
     .map(([category, value]) => {
-      const pct = Math.round((value / total) * 100);
+      const pct = Math.round((value / total2) * 100);
       return `
         <li class="category-item">
           <div style="flex: 1">
@@ -69,6 +74,59 @@ function renderDashboard() {
     }).join('');
 }
 
+function renderChart() {
+  const canvas = document.getElementById('chart-gastos') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  const byMonth: Record<string, number> = {};
+
+  expenses.forEach((exp) => {
+    const [year, month] = exp.date.split('-');
+    const key = `${month}/${year}`;
+    byMonth[key] = (byMonth[key] || 0) + exp.value;
+  });
+
+  const sorted = Object.entries(byMonth).sort((a, b) => {
+    const [ma, ya] = a[0].split('/');
+    const [mb, yb] = b[0].split('/');
+    return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
+  });
+
+  const labels = sorted.map(([key]) => key);
+  const values = sorted.map(([, value]) => value);
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Gastos',
+        data: values,
+        backgroundColor: '#2563eb',
+        borderRadius: 8,
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: (value) => `R$ ${value}`,
+          },
+        },
+      },
+    },
+  });
+}
+
 function renderExpenses() {
   expenseList.innerHTML = '';
 
@@ -80,6 +138,7 @@ function renderExpenses() {
     emptyState.classList.remove('hidden');
     saveExpenses(expenses);
     renderDashboard();
+    renderChart();
     return;
   }
 
@@ -90,7 +149,7 @@ function renderExpenses() {
       <div class="expense-info">
         <strong>${expense.description}</strong>
         <span>${expense.category} • ${expense.type}</span>
-<span>${formatDate(expense.date)}</span>
+        <span>${formatDate(expense.date)}</span>
       </div>
       <div class="expense-actions">
         <span class="expense-value">${formatCurrency(expense.value)}</span>
@@ -125,13 +184,12 @@ function renderExpenses() {
     });
   });
 
-  // Salvar no localStorage
   saveExpenses(expenses);
 
-  // Atualizar total e dashboard
   const total = expenses.reduce((acc, expense) => acc + expense.value, 0);
   totalGasto.textContent = formatCurrency(total);
   renderDashboard();
+  renderChart();
 }
 
 btnAdicionar.addEventListener('click', () => {
@@ -219,4 +277,6 @@ tabs.forEach((tab) => {
   });
 });
 
+renderDashboard();
+renderChart();
 renderExpenses();

@@ -87,30 +87,28 @@ function renderChart() {
   const currentYear = now.getFullYear();
   const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-  // Mostra só os meses que têm dados + mês atual
-const allKeys = new Set([
-  ...Object.keys(byMonth),
-  `${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`,
-]);
+  const allKeys = new Set([
+    ...Object.keys(byMonth),
+    `${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`,
+  ]);
 
-const months = Array.from(allKeys)
-  .sort((a, b) => {
-    const [ma, ya] = a.split('/');
-    const [mb, yb] = b.split('/');
-    return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
-  })
-  .map((key) => {
-    const [m, y] = key.split('/');
-    const d = new Date(parseInt(y), parseInt(m) - 1, 1);
-    return {
-      key,
-      label: monthNames[d.getMonth()],
-      value: byMonth[key] || 0,
-      isActive: d.getMonth() === currentMonth && parseInt(y) === currentYear,
-    };
-  });
+  const months = Array.from(allKeys)
+    .sort((a, b) => {
+      const [ma, ya] = a.split('/');
+      const [mb, yb] = b.split('/');
+      return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
+    })
+    .map((key) => {
+      const [m, y] = key.split('/');
+      const d = new Date(parseInt(y), parseInt(m) - 1, 1);
+      return {
+        key,
+        label: monthNames[d.getMonth()],
+        value: byMonth[key] || 0,
+        isActive: d.getMonth() === currentMonth && parseInt(y) === currentYear,
+      };
+    });
 
-  // Atualiza o total do mês atual no header
   const chartTotal = document.getElementById('chart-total');
   if (chartTotal) {
     const currentMonthTotal = months.find(m => m.isActive)?.value || 0;
@@ -153,6 +151,44 @@ const months = Array.from(allKeys)
   `;
 }
 
+function getCategoryIcon(category: string): string {
+  const icons: Record<string, string> = {
+    'Alimentação': '🛒',
+    'Transporte': '🚗',
+    'Moradia': '🏠',
+    'Lazer': '🎮',
+    'Saúde': '💊',
+    'Educação': '📚',
+    'Outros': '💳',
+  };
+  return icons[category] || '💰';
+}
+
+function renderRecent() {
+  const recentList = document.getElementById('recent-list');
+  if (!recentList) return;
+
+  const recent = [...expenses]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
+
+  if (recent.length === 0) {
+    recentList.innerHTML = '<p style="color:#aaa; font-size:14px">Nenhuma transação ainda.</p>';
+    return;
+  }
+
+  recentList.innerHTML = recent.map((expense) => `
+    <li class="recent-item">
+      <div class="recent-icon">${getCategoryIcon(expense.category)}</div>
+      <div class="recent-info">
+        <strong>${expense.description}</strong>
+        <span>${expense.category} • ${formatDate(expense.date)}</span>
+      </div>
+      <span class="recent-value">- ${formatCurrency(expense.value)}</span>
+    </li>
+  `).join('');
+}
+
 function renderExpenses() {
   expenseList.innerHTML = '';
 
@@ -165,6 +201,7 @@ function renderExpenses() {
     saveExpenses(expenses);
     renderDashboard();
     renderChart();
+    renderRecent();
     return;
   }
 
@@ -216,6 +253,7 @@ function renderExpenses() {
   totalGasto.textContent = formatCurrency(total);
   renderDashboard();
   renderChart();
+  renderRecent();
 }
 
 btnAdicionar.addEventListener('click', () => {
@@ -281,7 +319,6 @@ filtroCategoria.addEventListener('change', () => {
   renderExpenses();
 });
 
-// Lógica das abas
 const tabs = document.querySelectorAll('.tab');
 const tabContents = document.querySelectorAll('.tab-content');
 
@@ -305,4 +342,5 @@ tabs.forEach((tab) => {
 
 renderDashboard();
 renderChart();
+renderRecent();
 renderExpenses();

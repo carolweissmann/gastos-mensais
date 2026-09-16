@@ -689,6 +689,21 @@ body {
   flex-shrink: 0;
 }
 
+.tab-content {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* RESPONSIVO */
 @media (max-width: 600px) {
   .bottom-nav {

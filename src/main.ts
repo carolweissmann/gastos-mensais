@@ -316,13 +316,18 @@ function renderExpenses() {
   `).join('');
 
   document.querySelectorAll('.btn-excluir').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      const id = (e.target as HTMLElement).dataset.id;
-      expenses = expenses.filter((expense) => expense.id !== id);
+  btn.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).dataset.id;
+    const expense = expenses.find((exp) => exp.id === id);
+    if (!expense) return;
+
+    if (confirm(`Excluir "${expense.description}"?`)) {
+      expenses = expenses.filter((exp) => exp.id !== id);
       showToast('🗑️ Gasto removido!');
       renderExpenses();
-    });
+    }
   });
+});
 
   document.querySelectorAll('.btn-editar').forEach((btn) => {
     btn.addEventListener('click', (e) => {
@@ -352,6 +357,12 @@ function renderExpenses() {
 }
 
 btnCancelar.addEventListener('click', () => {
+  inputDescricao.value = '';
+  inputValor.value = '';
+  inputCategoria.value = 'Alimentação';
+  inputData.value = '';
+  inputTipo.value = 'Fixa';
+  editingId = null;
   formSection.classList.add('hidden');
 });
 

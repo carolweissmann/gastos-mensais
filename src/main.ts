@@ -12,7 +12,6 @@ let currentFilter: string = 'Todos';
 const LIMITE = 3000;
 
 // Elementos do HTML
-const btnAdicionar = document.getElementById('btn-adicionar')!;
 const btnCancelar = document.getElementById('btn-cancelar')!;
 const btnSalvar = document.getElementById('btn-salvar')!;
 const formSection = document.getElementById('form-section')!;
@@ -29,6 +28,14 @@ const inputCategoria = document.getElementById('categoria') as HTMLSelectElement
 const inputData = document.getElementById('data') as HTMLInputElement;
 const inputTipo = document.getElementById('tipo') as HTMLSelectElement;
 const filtroCategoria = document.getElementById('filtro-categoria') as HTMLSelectElement;
+const btnAdicionarFab = document.getElementById('btn-adicionar-fab')!;
+
+function showToast(message: string) {
+  const toast = document.getElementById('toast')!;
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
 
 function renderDashboard() {
   const total = expenses.reduce((acc, exp) => acc + exp.value, 0);
@@ -226,6 +233,7 @@ function renderExpenses() {
     btn.addEventListener('click', (e) => {
       const id = (e.target as HTMLElement).dataset.id;
       expenses = expenses.filter((expense) => expense.id !== id);
+      showToast('🗑️ Gasto removido!');
       renderExpenses();
     });
   });
@@ -256,9 +264,7 @@ function renderExpenses() {
   renderRecent();
 }
 
-btnAdicionar.addEventListener('click', () => {
-  formSection.classList.remove('hidden');
-});
+
 
 btnCancelar.addEventListener('click', () => {
   formSection.classList.add('hidden');
@@ -266,17 +272,19 @@ btnCancelar.addEventListener('click', () => {
 
 btnSalvar.addEventListener('click', () => {
   if (!inputDescricao.value.trim()) {
-    alert('Preencha a descrição!');
+    showToast('⚠️ Preencha a descrição!');
     return;
   }
   if (!inputValor.value || Number(inputValor.value) <= 0) {
-    alert('Preencha um valor válido!');
+    showToast('⚠️ Preencha um valor válido!');
     return;
   }
   if (!inputData.value) {
-    alert('Preencha a data!');
+    showToast('⚠️ Preencha a data!');
     return;
   }
+
+  const isEditing = editingId !== null;
 
   if (editingId) {
     expenses = expenses.map((exp) =>
@@ -310,6 +318,7 @@ btnSalvar.addEventListener('click', () => {
   inputData.value = '';
   inputTipo.value = 'Fixa';
 
+  showToast(isEditing ? '✅ Gasto atualizado!' : '✅ Gasto adicionado!');
   renderExpenses();
   formSection.classList.add('hidden');
 });
@@ -340,7 +349,6 @@ tabs.forEach((tab) => {
   });
 });
 
-// Bottom navigation
 const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
 
 bottomNavItems.forEach((item) => {
@@ -363,6 +371,21 @@ bottomNavItems.forEach((item) => {
       }
     });
   });
+});
+
+btnAdicionarFab.addEventListener('click', () => {
+  // Vai para a aba de transações
+  tabContents.forEach((content) => {
+    const el = content as HTMLElement;
+    if (el.id === 'tab-transacoes') {
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
+  });
+  bottomNavItems.forEach((i) => i.classList.remove('active'));
+  document.querySelector('.bottom-nav-item[data-tab="transacoes"]')?.classList.add('active');
+  formSection.classList.remove('hidden');
 });
 
 renderDashboard();

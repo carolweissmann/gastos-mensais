@@ -9,30 +9,35 @@
 
 <body>
 
-<nav class="bottom-nav">
-  <button class="bottom-nav-item active" data-tab="overview">
-    <span class="bottom-nav-icon">🏠</span>
-    <span class="bottom-nav-label">Overview</span>
-  </button>
-  <button class="bottom-nav-item" data-tab="transacoes">
-    <span class="bottom-nav-icon">💸</span>
-    <span class="bottom-nav-label">Transações</span>
-  </button>
-  <button class="bottom-nav-item" data-tab="categorias">
-    <span class="bottom-nav-icon">📊</span>
-    <span class="bottom-nav-label">Categorias</span>
-  </button>
-</nav>
+  <nav class="bottom-nav">
+    <button class="bottom-nav-item active" data-tab="overview">
+      <span class="bottom-nav-icon">🏠</span>
+      <span class="bottom-nav-label">Overview</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="transacoes">
+      <span class="bottom-nav-icon">💸</span>
+      <span class="bottom-nav-label">Transações</span>
+    </button>
+    <button class="fab-nav" id="btn-adicionar-fab">
+      <span>+</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="categorias">
+      <span class="bottom-nav-icon">📊</span>
+      <span class="bottom-nav-label">Categorias</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
 
   <main class="app">
 
     <header class="header">
-  <div class="header-text">
-    <p class="header-greeting">Bom dia 👋</p>
-    <h1>Meus Gastos</h1>
-  </div>
-  <div class="header-avatar">C</div>
-</header>
+      <div class="header-text">
+        <p class="header-greeting">Bom dia 👋</p>
+        <h1>Meus Gastos</h1>
+      </div>
+      <div class="header-avatar">C</div>
+    </header>
 
     <section class="summary">
       <div class="card">
@@ -60,34 +65,28 @@
     </div>
 
     <div class="tab-content" id="tab-overview">
-  <section class="chart-section">
-  <div class="chart-header">
-    <div>
-      <span class="chart-label">GASTO MENSAL</span>
-      <strong id="chart-total">R$ 0,00</strong>
+      <section class="chart-section">
+        <div class="chart-header">
+          <span class="chart-label">GASTO MENSAL</span>
+          <strong id="chart-total">R$ 0,00</strong>
+        </div>
+        <div id="chart-gastos-container"></div>
+      </section>
+
+      <section class="categories-summary" id="categories-summary">
+        <h2>Por categoria</h2>
+        <ul id="categories-list"></ul>
+      </section>
+
+      <section class="recent-section">
+        <div class="recent-header">
+          <h2>Recentes</h2>
+        </div>
+        <ul id="recent-list"></ul>
+      </section>
     </div>
-  </div>
-  <div id="chart-gastos-container"></div>
-</section>
-
-  <section class="categories-summary" id="categories-summary">
-    <h2>Por categoria</h2>
-    <ul id="categories-list"></ul>
-  </section>
-
-  <section class="recent-section">
-  <div class="recent-header">
-    <h2>Recentes</h2>
-  </div>
-  <ul id="recent-list"></ul>
-</section>
-</div>
 
     <div class="tab-content hidden" id="tab-transacoes">
-      <button class="add-expense" id="btn-adicionar">
-        + Adicionar gasto
-      </button>
-
       <section class="form-section hidden" id="form-section">
         <h2>Novo gasto</h2>
         <div class="form-group">

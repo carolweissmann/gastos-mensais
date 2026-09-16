@@ -7,5 +7,6 @@ export const CATEGORIES: ExpenseCategory[] = [
   'Lazer',
   'Saúde',
   'Educação',
+  'Entretenimento',
   'Outros',
 ];

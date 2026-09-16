@@ -5,6 +5,7 @@ export type ExpenseCategory =
   | 'Lazer'
   | 'Saúde'
   | 'Educação'
+  | 'Entretenimento'
   | 'Outros';
 
 export type ExpenseType = 'Fixa' | 'Variável';

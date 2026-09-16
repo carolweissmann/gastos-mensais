@@ -11,6 +11,13 @@ let currentFilter: string = 'Todos';
 
 const LIMITE = 3000;
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Bom dia 👋';
+  if (hour >= 12 && hour < 18) return 'Boa tarde 👋';
+  return 'Boa noite 👋';
+}
+
 // Elementos do HTML
 const btnCancelar = document.getElementById('btn-cancelar')!;
 const btnSalvar = document.getElementById('btn-salvar')!;
@@ -35,6 +42,34 @@ function showToast(message: string) {
   toast.textContent = message;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function getCategoryIcon(category: string): string {
+  const icons: Record<string, string> = {
+    'Alimentação': '🛒',
+    'Transporte': '🚗',
+    'Moradia': '🏠',
+    'Lazer': '🎮',
+    'Saúde': '💊',
+    'Educação': '📚',
+    'Entretenimento': '🎬',
+    'Outros': '💳',
+  };
+  return icons[category] || '💰';
+}
+
+function getCategoryColor(category: string): string {
+  const colors: Record<string, string> = {
+    'Alimentação': '#f97316',
+    'Transporte': '#3b82f6',
+    'Moradia': '#8b5cf6',
+    'Lazer': '#eab308',
+    'Saúde': '#22c55e',
+    'Educação': '#06b6d4',
+    'Entretenimento': '#ec4899',
+    'Outros': '#6b7280',
+  };
+  return colors[category] || '#6b7280';
 }
 
 function renderDashboard() {
@@ -64,6 +99,7 @@ function renderDashboard() {
     .sort((a, b) => b[1] - a[1])
     .map(([category, value]) => {
       const pct = Math.round((value / total2) * 100);
+      const color = getCategoryColor(category);
       return `
         <li class="category-item">
           <div style="flex: 1">
@@ -71,7 +107,7 @@ function renderDashboard() {
               <span>${category}</span>
               <strong>${formatCurrency(value)}</strong>
             </div>
-            <div class="category-bar" style="width: ${pct}%"></div>
+            <div class="category-bar" style="width: ${pct}%; background: ${color}"></div>
           </div>
         </li>
       `;
@@ -158,19 +194,6 @@ function renderChart() {
   `;
 }
 
-function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    'Alimentação': '🛒',
-    'Transporte': '🚗',
-    'Moradia': '🏠',
-    'Lazer': '🎮',
-    'Saúde': '💊',
-    'Educação': '📚',
-    'Outros': '💳',
-  };
-  return icons[category] || '💰';
-}
-
 function renderRecent() {
   const recentList = document.getElementById('recent-list');
   if (!recentList) return;
@@ -196,6 +219,68 @@ function renderRecent() {
   `).join('');
 }
 
+function renderCategories() {
+  const list = document.getElementById('categories-list-detail');
+  if (!list) return;
+
+  const byCategory: Record<string, number> = {};
+  expenses.forEach((exp) => {
+    byCategory[exp.category] = (byCategory[exp.category] || 0) + exp.value;
+  });
+
+  const total = expenses.reduce((acc, exp) => acc + exp.value, 0);
+
+  if (total === 0) {
+    list.innerHTML = '<p style="color:#aaa; font-size:14px">Nenhum gasto cadastrado.</p>';
+    return;
+  }
+
+  const sorted = Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
+
+  const colorBar = sorted.map(([category, value]) => {
+    const pct = Math.round((value / total) * 100);
+    const color = getCategoryColor(category);
+    return `<div style="flex: ${pct}; background: ${color}; height: 6px;"></div>`;
+  }).join('');
+
+  list.innerHTML = `
+    <div class="category-color-bar">${colorBar}</div>
+    ${sorted.map(([category, value]) => {
+      const pct = Math.round((value / total) * 100);
+      const icon = getCategoryIcon(category);
+      const color = getCategoryColor(category);
+      return `
+        <li class="category-detail-item">
+          <div class="category-detail-header">
+            <div class="category-detail-left">
+              <div class="category-dot" style="background: ${color}"></div>
+              <div class="category-detail-icon">${icon}</div>
+              <span>${category}</span>
+            </div>
+            <div style="text-align: right">
+              <strong>${formatCurrency(value)}</strong>
+              <span class="category-detail-pct">${pct}%</span>
+            </div>
+          </div>
+          <div class="category-detail-bar-bg">
+            <div class="category-detail-bar" style="width: ${pct}%; background: ${color}"></div>
+          </div>
+        </li>
+      `;
+    }).join('')}
+    <div class="category-footer">
+      <div>
+        <span class="chart-label">TOTAL CATEGORIZADO</span>
+        <strong>${formatCurrency(total)}</strong>
+      </div>
+      <div style="text-align: right">
+        <span class="chart-label">LIMITE</span>
+        <strong style="color: #2563eb">${formatCurrency(LIMITE)}</strong>
+      </div>
+    </div>
+  `;
+}
+
 function renderExpenses() {
   expenseList.innerHTML = '';
 
@@ -209,6 +294,7 @@ function renderExpenses() {
     renderDashboard();
     renderChart();
     renderRecent();
+    renderCategories();
     return;
   }
 
@@ -262,9 +348,8 @@ function renderExpenses() {
   renderDashboard();
   renderChart();
   renderRecent();
+  renderCategories();
 }
-
-
 
 btnCancelar.addEventListener('click', () => {
   formSection.classList.add('hidden');
@@ -334,10 +419,8 @@ const tabContents = document.querySelectorAll('.tab-content');
 tabs.forEach((tab) => {
   tab.addEventListener('click', () => {
     const target = (tab as HTMLElement).dataset.tab;
-
     tabs.forEach((t) => t.classList.remove('active'));
     tab.classList.add('active');
-
     tabContents.forEach((content) => {
       const el = content as HTMLElement;
       if (el.id === `tab-${target}`) {
@@ -354,14 +437,11 @@ const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
 bottomNavItems.forEach((item) => {
   item.addEventListener('click', () => {
     const target = (item as HTMLElement).dataset.tab;
-
     bottomNavItems.forEach((i) => i.classList.remove('active'));
     item.classList.add('active');
-
     tabs.forEach((t) => t.classList.remove('active'));
     const matchingTab = document.querySelector(`.tab[data-tab="${target}"]`);
     if (matchingTab) matchingTab.classList.add('active');
-
     tabContents.forEach((content) => {
       const el = content as HTMLElement;
       if (el.id === `tab-${target}`) {
@@ -374,7 +454,6 @@ bottomNavItems.forEach((item) => {
 });
 
 btnAdicionarFab.addEventListener('click', () => {
-  // Vai para a aba de transações
   tabContents.forEach((content) => {
     const el = content as HTMLElement;
     if (el.id === 'tab-transacoes') {
@@ -388,7 +467,11 @@ btnAdicionarFab.addEventListener('click', () => {
   formSection.classList.remove('hidden');
 });
 
+const greetingEl = document.querySelector('.header-greeting');
+if (greetingEl) greetingEl.textContent = getGreeting();
+
 renderDashboard();
 renderChart();
 renderRecent();
+renderCategories();
 renderExpenses();

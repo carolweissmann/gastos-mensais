@@ -340,6 +340,31 @@ tabs.forEach((tab) => {
   });
 });
 
+// Bottom navigation
+const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+
+bottomNavItems.forEach((item) => {
+  item.addEventListener('click', () => {
+    const target = (item as HTMLElement).dataset.tab;
+
+    bottomNavItems.forEach((i) => i.classList.remove('active'));
+    item.classList.add('active');
+
+    tabs.forEach((t) => t.classList.remove('active'));
+    const matchingTab = document.querySelector(`.tab[data-tab="${target}"]`);
+    if (matchingTab) matchingTab.classList.add('active');
+
+    tabContents.forEach((content) => {
+      const el = content as HTMLElement;
+      if (el.id === `tab-${target}`) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+  });
+});
+
 renderDashboard();
 renderChart();
 renderRecent();

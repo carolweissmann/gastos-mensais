@@ -7,6 +7,18 @@
   <title>Meus Gastos</title>
 </head>
 
+
+<!-- Modal de confirmação -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <p class="modal-message" id="modal-message"></p>
+    <div class="modal-buttons">
+      <button class="modal-cancelar" id="modal-cancelar">Cancelar</button>
+      <button class="modal-confirmar" id="modal-confirmar">Excluir</button>
+    </div>
+  </div>
+</div>
+
 <body>
 
   <nav class="bottom-nav">
@@ -87,6 +99,44 @@
     </div>
 
     <div class="tab-content hidden" id="tab-transacoes">
+
+      <section class="fixos-section">
+        <div class="fixos-header">
+          <h2>📌 Fixos do mês</h2>
+          <button class="btn-gerenciar-fixos" id="btn-gerenciar-fixos">+ Adicionar</button>
+        </div>
+        <ul class="fixos-list" id="fixos-list"></ul>
+      </section>
+
+      <section class="form-fixo hidden" id="form-fixo">
+        <h2>Novo gasto fixo</h2>
+        <div class="form-group">
+          <label for="fixo-descricao">Descrição</label>
+          <input type="text" id="fixo-descricao" placeholder="Ex: Netflix" />
+        </div>
+        <div class="form-group">
+          <label for="fixo-valor">Valor</label>
+          <input type="number" id="fixo-valor" placeholder="Ex: 39,90" />
+        </div>
+        <div class="form-group">
+          <label for="fixo-categoria">Categoria</label>
+          <select id="fixo-categoria">
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Educação">Educação</option>
+            <option value="Entretenimento">Entretenimento</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-buttons">
+          <button id="btn-cancelar-fixo">Cancelar</button>
+          <button id="btn-salvar-fixo">Salvar fixo</button>
+        </div>
+      </section>
+
       <section class="form-section hidden" id="form-section">
         <h2>Novo gasto</h2>
         <div class="form-group">
@@ -136,6 +186,7 @@
           <option value="Lazer">Lazer</option>
           <option value="Saúde">Saúde</option>
           <option value="Educação">Educação</option>
+          <option value="Entretenimento">Entretenimento</option>
           <option value="Outros">Outros</option>
         </select>
       </section>

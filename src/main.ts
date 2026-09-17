@@ -2,10 +2,38 @@ import './style.css';
 import type { Expense } from './types/expense';
 import type { ExpenseCategory, ExpenseType } from './types/expense';
 import { formatCurrency } from './utils/formatCurrency';
-import { saveExpenses, loadExpenses } from './services/storage';
+import { saveExpenses, loadExpenses, saveFixos, loadFixos } from './services/storage';
+import type { GastoFixo } from './services/storage';
 import { formatDate } from './utils/formatDate';
 
+function showConfirm(message: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay')!;
+    const msg = document.getElementById('modal-message')!;
+    const btnConfirmar = document.getElementById('modal-confirmar')!;
+    const btnCancelarModal = document.getElementById('modal-cancelar')!;
+
+    msg.textContent = message;
+    overlay.classList.remove('hidden');
+
+    const close = (result: boolean) => {
+      overlay.classList.add('hidden');
+      btnConfirmar.removeEventListener('click', onConfirm);
+      btnCancelarModal.removeEventListener('click', onCancel);
+      resolve(result);
+    };
+
+    const onConfirm = () => close(true);
+    const onCancel = () => close(false);
+
+    btnConfirmar.addEventListener('click', onConfirm);
+    btnCancelarModal.addEventListener('click', onCancel);
+  });
+}
+
+
 let expenses: Expense[] = loadExpenses();
+let fixos: GastoFixo[] = loadFixos();
 let editingId: string | null = null;
 let currentFilter: string = 'Todos';
 
@@ -28,6 +56,11 @@ const totalGasto = document.getElementById('total-gasto')!;
 const disponivelEl = document.getElementById('disponivel')!;
 const percentualEl = document.getElementById('percentual')!;
 const categoriesList = document.getElementById('categories-list')!;
+const btnGerenciarFixos = document.getElementById('btn-gerenciar-fixos')!;
+const formFixo = document.getElementById('form-fixo')!;
+const btnCancelarFixo = document.getElementById('btn-cancelar-fixo')!;
+const btnSalvarFixo = document.getElementById('btn-salvar-fixo')!;
+const fixosList = document.getElementById('fixos-list')!;
 
 const inputDescricao = document.getElementById('descricao') as HTMLInputElement;
 const inputValor = document.getElementById('valor') as HTMLInputElement;
@@ -36,6 +69,9 @@ const inputData = document.getElementById('data') as HTMLInputElement;
 const inputTipo = document.getElementById('tipo') as HTMLSelectElement;
 const filtroCategoria = document.getElementById('filtro-categoria') as HTMLSelectElement;
 const btnAdicionarFab = document.getElementById('btn-adicionar-fab')!;
+const inputFixoDescricao = document.getElementById('fixo-descricao') as HTMLInputElement;
+const inputFixoValor = document.getElementById('fixo-valor') as HTMLInputElement;
+const inputFixoCategoria = document.getElementById('fixo-categoria') as HTMLSelectElement;
 
 function showToast(message: string) {
   const toast = document.getElementById('toast')!;
@@ -169,8 +205,8 @@ function renderChart() {
     const x = i * (barWidth + gap);
     const y = chartHeight - h;
     const fill = isActive ? 'url(#blueGradient)' : 'rgba(0,0,0,0.07)';
-    const shadow = isActive ? 'filter: drop-shadow(0 4px 8px rgba(37,99,235,0.35))' : '';
-    const labelColor = isActive ? '#2563eb' : 'rgba(0,0,0,0.3)';
+    const shadow = isActive ? 'filter: drop-shadow(0 4px 8px rgba(5,38,89,0.35))' : '';
+    const labelColor = isActive ? '#052659' : 'rgba(0,0,0,0.3)';
     const fontWeight = isActive ? '600' : '400';
 
     return `
@@ -185,8 +221,8 @@ function renderChart() {
     <svg width="100%" viewBox="0 0 ${totalWidth} ${chartHeight + 28}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#3b82f6"/>
-          <stop offset="100%" stop-color="#2563eb"/>
+          <stop offset="0%" stop-color="#5483B3"/>
+          <stop offset="100%" stop-color="#052659"/>
         </linearGradient>
       </defs>
       ${bars}
@@ -203,7 +239,7 @@ function renderRecent() {
     .slice(0, 5);
 
   if (recent.length === 0) {
-    recentList.innerHTML = '<p style="color:#aaa; font-size:14px">Nenhuma transação ainda.</p>';
+    recentList.innerHTML = '<p style="color:#7DA0CA; font-size:14px">Nenhuma transação ainda.</p>';
     return;
   }
 
@@ -231,7 +267,7 @@ function renderCategories() {
   const total = expenses.reduce((acc, exp) => acc + exp.value, 0);
 
   if (total === 0) {
-    list.innerHTML = '<p style="color:#aaa; font-size:14px">Nenhum gasto cadastrado.</p>';
+    list.innerHTML = '<p style="color:#7DA0CA; font-size:14px">Nenhum gasto cadastrado.</p>';
     return;
   }
 
@@ -275,10 +311,66 @@ function renderCategories() {
       </div>
       <div style="text-align: right">
         <span class="chart-label">LIMITE</span>
-        <strong style="color: #2563eb">${formatCurrency(LIMITE)}</strong>
+        <strong style="color: #052659">${formatCurrency(LIMITE)}</strong>
       </div>
     </div>
   `;
+}
+
+function renderFixos() {
+  if (fixos.length === 0) {
+    fixosList.innerHTML = '<p style="color:#7DA0CA; font-size:14px">Nenhum gasto fixo cadastrado.</p>';
+    return;
+  }
+
+  fixosList.innerHTML = fixos.map((fixo) => `
+    <li class="fixo-item">
+      <div class="fixo-info">
+        <div class="recent-icon">${getCategoryIcon(fixo.category)}</div>
+        <div>
+          <strong>${fixo.description}</strong>
+          <span style="display:block; font-size:12px; color:#7DA0CA">${fixo.category}</span>
+        </div>
+      </div>
+      <div class="fixo-actions">
+        <span class="fixo-value">${formatCurrency(fixo.value)}</span>
+        <button class="btn-adicionar-fixo" data-id="${fixo.id}">Lançar</button>
+        <button class="btn-remover-fixo" data-id="${fixo.id}">×</button>
+      </div>
+    </li>
+  `).join('');
+
+  document.querySelectorAll('.btn-adicionar-fixo').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const id = (e.target as HTMLElement).dataset.id;
+      const fixo = fixos.find((f) => f.id === id);
+      if (!fixo) return;
+
+      const newExpense: Expense = {
+        id: crypto.randomUUID(),
+        description: fixo.description,
+        value: fixo.value,
+        category: fixo.category as ExpenseCategory,
+        date: new Date().toISOString().split('T')[0],
+        type: 'Fixa' as ExpenseType,
+      };
+      expenses.push(newExpense);
+      showToast(`✅ ${fixo.description} lançado!`);
+      renderExpenses();
+    });
+  });
+
+  document.querySelectorAll('.btn-remover-fixo').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.target as HTMLElement).dataset.id;
+      const confirmed = await showConfirm('Remover este gasto fixo?');
+      if (!confirmed) return;
+
+      fixos = fixos.filter((f) => f.id !== id);
+      saveFixos(fixos);
+      renderFixos();
+    });
+  });
 }
 
 function renderExpenses() {
@@ -316,18 +408,19 @@ function renderExpenses() {
   `).join('');
 
   document.querySelectorAll('.btn-excluir').forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    const id = (e.target as HTMLElement).dataset.id;
-    const expense = expenses.find((exp) => exp.id === id);
-    if (!expense) return;
+    btn.addEventListener('click', async (e) => {
+      const id = (e.target as HTMLElement).dataset.id;
+      const expense = expenses.find((exp) => exp.id === id);
+      if (!expense) return;
 
-    if (confirm(`Excluir "${expense.description}"?`)) {
+      const confirmed = await showConfirm(`Excluir "${expense.description}"?`);
+      if (!confirmed) return;
+
       expenses = expenses.filter((exp) => exp.id !== id);
       showToast('🗑️ Gasto removido!');
       renderExpenses();
-    }
+    });
   });
-});
 
   document.querySelectorAll('.btn-editar').forEach((btn) => {
     btn.addEventListener('click', (e) => {
@@ -424,6 +517,44 @@ filtroCategoria.addEventListener('change', () => {
   renderExpenses();
 });
 
+btnGerenciarFixos.addEventListener('click', () => {
+  formFixo.classList.toggle('hidden');
+});
+
+btnCancelarFixo.addEventListener('click', () => {
+  formFixo.classList.add('hidden');
+  inputFixoDescricao.value = '';
+  inputFixoValor.value = '';
+  inputFixoCategoria.value = 'Alimentação';
+});
+
+btnSalvarFixo.addEventListener('click', () => {
+  if (!inputFixoDescricao.value.trim()) {
+    showToast('⚠️ Preencha a descrição!');
+    return;
+  }
+  if (!inputFixoValor.value || Number(inputFixoValor.value) <= 0) {
+    showToast('⚠️ Preencha um valor válido!');
+    return;
+  }
+
+  const novoFixo: GastoFixo = {
+    id: crypto.randomUUID(),
+    description: inputFixoDescricao.value,
+    value: Number(inputFixoValor.value),
+    category: inputFixoCategoria.value,
+  };
+
+  fixos.push(novoFixo);
+  saveFixos(fixos);
+  renderFixos();
+  formFixo.classList.add('hidden');
+  inputFixoDescricao.value = '';
+  inputFixoValor.value = '';
+  inputFixoCategoria.value = 'Alimentação';
+  showToast('📌 Gasto fixo salvo!');
+});
+
 const tabs = document.querySelectorAll('.tab');
 const tabContents = document.querySelectorAll('.tab-content');
 
@@ -485,4 +616,5 @@ renderDashboard();
 renderChart();
 renderRecent();
 renderCategories();
+renderFixos();
 renderExpenses();

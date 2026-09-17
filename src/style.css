@@ -777,34 +777,37 @@ body {
   padding: 12px;
   border: 1px solid #C1E8FF;
   border-radius: 12px;
+  gap: 8px;
 }
 
 .fixo-info {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 
 .fixo-info strong {
   font-size: 14px;
   color: #021024;
-}
-
-.fixo-info span {
-  font-size: 12px;
-  color: #7DA0CA;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fixo-actions {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .fixo-value {
   font-size: 14px;
   font-weight: 700;
   color: #021024;
+  white-space: nowrap;
 }
 
 .btn-adicionar-fixo {
@@ -822,10 +825,20 @@ body {
   background: #fee2e2;
   color: #dc2626;
   border: none;
-  padding: 4px 10px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.btn-remover-fixo:hover {
+  background: #fecaca;
 }
 
 .form-fixo {
@@ -903,6 +916,75 @@ body {
   cursor: pointer;
   background: #dc2626;
   color: white;
+}
+
+.fixo-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid #C1E8FF;
+}
+
+.fixo-swipe-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: white;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+  gap: 8px;
+}
+
+.fixo-delete-bg {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  border-radius: 0 12px 12px 0;
+}
+
+.btn-remover-fixo {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: white;
+}
+
+.fixo-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.fixo-info strong {
+  font-size: 14px;
+  color: #021024;
+}
+
+.fixo-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.fixo-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #021024;
+  white-space: nowrap;
 }
 
 

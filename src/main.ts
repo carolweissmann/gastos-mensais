@@ -324,18 +324,22 @@ function renderFixos() {
   }
 
   fixosList.innerHTML = fixos.map((fixo) => `
-    <li class="fixo-item">
-      <div class="fixo-info">
-        <div class="recent-icon">${getCategoryIcon(fixo.category)}</div>
-        <div>
-          <strong>${fixo.description}</strong>
-          <span style="display:block; font-size:12px; color:#7DA0CA">${fixo.category}</span>
+    <li class="fixo-item" data-id="${fixo.id}">
+      <div class="fixo-swipe-content">
+        <div class="fixo-info">
+          <div class="recent-icon">${getCategoryIcon(fixo.category)}</div>
+          <div>
+            <strong>${fixo.description}</strong>
+            <span style="display:block; font-size:12px; color:#7DA0CA">${fixo.category}</span>
+          </div>
+        </div>
+        <div class="fixo-actions">
+          <span class="fixo-value">${formatCurrency(fixo.value)}</span>
+          <button class="btn-adicionar-fixo" data-id="${fixo.id}">Lançar</button>
         </div>
       </div>
-      <div class="fixo-actions">
-        <span class="fixo-value">${formatCurrency(fixo.value)}</span>
-        <button class="btn-adicionar-fixo" data-id="${fixo.id}">Lançar</button>
-        <button class="btn-remover-fixo" data-id="${fixo.id}">×</button>
+      <div class="fixo-delete-bg">
+        <button class="btn-remover-fixo" data-id="${fixo.id}">🗑️</button>
       </div>
     </li>
   `).join('');
@@ -371,6 +375,37 @@ function renderFixos() {
       renderFixos();
     });
   });
+
+  // Swipe para excluir
+document.querySelectorAll('.fixo-item').forEach((item) => {
+  const el = item as HTMLElement;
+  const content = el.querySelector('.fixo-swipe-content') as HTMLElement;
+  let startX = 0;
+  let isDragging = false;
+
+  el.addEventListener('touchstart', (e) => {
+    startX = (e as TouchEvent).touches[0].clientX;
+    isDragging = true;
+  });
+
+  el.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const diff = (e as TouchEvent).touches[0].clientX - startX;
+    if (diff < 0) {
+      content.style.transform = `translateX(${Math.max(diff, -80)}px)`;
+    }
+  });
+
+  el.addEventListener('touchend', (e) => {
+    const diff = (e as TouchEvent).changedTouches[0].clientX - startX;
+    if (diff < -60) {
+      content.style.transform = 'translateX(-80px)';
+    } else {
+      content.style.transform = 'translateX(0)';
+    }
+    isDragging = false;
+  });
+});
 }
 
 function renderExpenses() {
